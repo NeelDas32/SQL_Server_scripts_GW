@@ -1,0 +1,1 @@
+SELECT sys.fn_hadr_backup_is_preferred_replica ('preprod_bc');  

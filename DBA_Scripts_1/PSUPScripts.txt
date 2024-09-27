@@ -1,0 +1,71 @@
+aws s3 cp s3://gw-pcbc-migration-db/PC_I15_Mask.bak --profile icarepcbc .
+aws s3 cp s3://gw-pcbc-migration-db/CC_I15_Mask.bak --profile icarepcbc .
+aws s3 cp s3://gw-pcbc-migration-db/BC_I15_Mask.bak --profile icarepcbc .
+aws s3 cp s3://gw-pcbc-migration-db/CM_I15_Mask.bak --profile icarepcbc .
+
+aws s3 cp s3://gw-pcbc-migration-db/i8_AB_Update.txt --profile icarepcbc .
+
+aws s3 cp s3://gw-pcbc-migration-db/i8_CC_Update.txt --profile icarepcbc .
+
+aws s3 cp s3://gw-pcbc-migration-db/i8_BC_Update.txt --profile icarepcbc .
+
+aws s3 cp s3://gw-pcbc-migration-db/i8_PC_Update.txt --profile icarepcbc .
+
+
+aws s3 cp s3://gw-pcbc-migration-db/iTRN_CC_Script1_20210714.txt --profile icarepcbc .
+aws s3 cp s3://gw-pcbc-migration-db/iTRN_CC_Script_20210714_1.txt --profile icarepcbc .
+aws s3 cp s3://gw-pcbc-migration-db/iTRN_CC_Script_20210714_2.txt --profile icarepcbc .
+aws s3 cp s3://gw-pcbc-migration-db/iTRN_CC_Script_20210714_3.txt --profile icarepcbc .
+aws s3 cp s3://gw-pcbc-migration-db/iTRN_CC_Script_20210714_4.txt --profile icarepcbc .
+aws s3 cp s3://gw-pcbc-migration-db/iTRN_CC_Script_20210714_5.txt --profile icarepcbc .
+aws s3 cp s3://gw-pcbc-migration-db/iTRN_CC_Script_20210714_6.txt --profile icarepcbc .
+
+aws s3 cp s3://gw-pcbc-migration-db/iTRN_PC_Script_20210714.txt --profile icarepcbc .
+
+aws s3 ls s3://gw-pcbc-migration-db/ --profile icarepcbc
+
+
+CREATE NONCLUSTERED INDEX [IX_cc_transaction_ClaimID_Retired_Subtype] ON [preprod_cc].[dbo].[cc_transaction] ([ClaimID], [Retired], [Subtype])
+CREATE NONCLUSTERED INDEX [IX_cc_claim_Retired] ON [preprod_cc].[dbo].[cc_claim] ([Retired]) INCLUDE ([ID])
+CREATE NONCLUSTERED INDEX [IX_ccx_ocrinvoice_icare] ON [preprod_cc].[dbo].[ccx_ocrinvoice_icare] ([DocumentIdentifier],[Retired])
+CREATE NONCLUSTERED INDEX [IX_cc_claimmetric_ClaimID] ON [preprod_cc].[dbo].[cc_claimmetric] ([ClaimID]) INCLUDE ([ID], [Subtype])
+CREATE NONCLUSTERED INDEX [IX_ccx_paycode_icare_Retired] ON [preprod_cc].[dbo].[ccx_paycode_icare] ([Retired]) INCLUDE ([ReplacedAMACode], [Paycode], [ID], [OldAMACode])
+CREATE NONCLUSTERED INDEX [IX_cc_activity_Retired_AssignedQueueID] ON [preprod_cc].[dbo].[cc_activity] ([Retired],[AssignedQueueID])
+CREATE NONCLUSTERED INDEX [IX_ccx_outboundpack_icare_Retired_ProcessID] ON [preprod_cc].[dbo].[ccx_outboundpack_icare] ([Retired], [ProcessID])
+CREATE NONCLUSTERED INDEX [IX_cc_activity_Retired_Status_AssignmentStatus_Type_AssignedUserID] ON [preprod_cc].[dbo].[cc_activity] ([Retired], [Status], [AssignmentStatus],[Type], [AssignedUserID])
+CREATE NONCLUSTERED INDEX [IX_cc_workflow_Retired_Subtype] ON [dbo].[cc_workflow] ([Retired],[Subtype]) INCLUDE ([CreateTime],[ID])
+
+
+USE [master]
+RESTORE DATABASE [CC_I14_mask] FROM  DISK = N'F:\JIRA Request\CC_I14_Mask.bak' WITH  FILE = 1,  MOVE N'CC_I14' TO N'D:\MSSQL\DATA\CC_I14_mask_20210624.mdf',  MOVE N'CC_I14_log' TO N'E:\MSSQL\LOG\ CC_I14_mask_20210624_log.ldf',  NOUNLOAD,  STATS = 5
+
+GO
+
+
+
+BACKUP DATABASE [prod_unmasked_ab] TO  DISK = N'\\10.150.0.28\i$\Preprod_maskedbackups\preprod_masked_ab.bak' WITH NOFORMAT, NOINIT,  NAME = N'prod_unmasked_ab-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10
+GO
+
+EXEC msdb.dbo.sp_delete_database_backuphistory @database_name = N'CC_I14_mask'
+GO
+USE [master]
+GO
+/****** Object:  Database [CC_I14_mask]    Script Date: 6/25/2021 4:16:47 PM ******/
+DROP DATABASE [PC_I14_mask]
+GO
+
+DROP DATABASE [CM_I14_mask]
+GO
+DROP DATABASE [BC_I14_mask]
+GO
+DROP DATABASE [CC_I14_mask]
+GO
+
+aws s3 cp F:\MSSQL\Backup\prod_unmasked_pc_July19th.bak s3://gw-pcbc-migration-db/prod_unmasked_pc_July19th.bak --profile icarepcbc
+aws s3 cp F:\MSSQL\Backup\prod_unmasked_cc_July19th.bak s3://gw-pcbc-migration-db/prod_unmasked_cc_July19th.bak --profile icarepcbc
+aws s3 cp F:\MSSQL\Backup\prod_unmasked_bc_July19th.bak s3://gw-pcbc-migration-db/prod_unmasked_bc_July19th.bakk --profile icarepcbc
+aws s3 cp F:\MSSQL\Backup\prod_unmasked_ab_July19th.bak s3://gw-pcbc-migration-db/prod_unmasked_ab_July19th.bak --profile icarepcbc
+
+
+
+\\EC2AMAZ-C3N07VJ.icarepreprod.local\E$\i14\SSISoutbound\CRIF\Temp
